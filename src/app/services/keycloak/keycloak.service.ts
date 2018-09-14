@@ -1,23 +1,18 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-
-declare let Keycloak: any;
+import * as Keycloak from 'keycloak-js';
 
 @Injectable()
 export class KeycloakService {
-  
+
   static auth: any = {};
 
-  static login(): void {
-    KeycloakService.auth.authz.login().success(
-      () => {
-        KeycloakService.auth.loggedIn = true;
-      }
-    );
-  }
-
   static init(): Promise<any> {
-    const keycloakAuth: any = Keycloak({
+    /**
+     * init KeycloakService with client-id
+     * @type {Keycloak.KeycloakInstance}
+     */
+    const keycloakAuth: Keycloak.KeycloakInstance = Keycloak({
       url: environment.keycloak.url,
       realm: environment.keycloak.realm,
       clientId: environment.keycloak.clientId,
@@ -26,13 +21,12 @@ export class KeycloakService {
     });
     KeycloakService.auth.loggedIn = false;
     return new Promise((resolve, reject) => {
-      keycloakAuth.init({ onLoad: 'login-required', checkLoginIframe: false })
+      keycloakAuth.init({ onLoad: 'check-sso', checkLoginIframe: false })
         .success(() => {
-          KeycloakService.auth.loggedIn = true;
+          KeycloakService.auth.loggedIn = false;
           KeycloakService.auth.authz = keycloakAuth;
-          KeycloakService.auth.logoutUrl = keycloakAuth.authServerUrl
-            + '/realms/' + environment.keycloak.realm + '/protocol/openid-connect/logout?redirect_uri='
-            + document.baseURI;
+
+          console.log(KeycloakService.auth.authz.tokenParsed);
           resolve();
         })
         .error(() => {
@@ -43,6 +37,13 @@ export class KeycloakService {
 
   constructor() { }
 
+  login(): void {
+    KeycloakService.auth.authz.login().success(
+      () => {
+        KeycloakService.auth.loggedIn = true;
+      }
+    );
+  }
 
   getToken(): Promise<string> {
     return new Promise<string>((resolve, reject) => {
@@ -61,14 +62,23 @@ export class KeycloakService {
     });
   }
 
+  isLoggedIn(): boolean {
+    return KeycloakService.auth.authz.authenticated;
+  }
+
   getFullName(): string {
     return KeycloakService.auth.authz.tokenParsed.name;
   }
 
-  logout() {
-    KeycloakService.auth.loggedIn = false;
-    KeycloakService.auth.authz = null;
-    window.location.href = KeycloakService.auth.logoutUrl;
+  getKeycloakAuth() {
+    return KeycloakService.auth.authz;
+  }
+
+  logout(): void {
+    KeycloakService.auth.authz.logout({redirectUri : document.baseURI}).success(() => {
+      KeycloakService.auth.loggedIn = false;
+      KeycloakService.auth.authz = null;
+    });
   }
 
 }

@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DataService } from './services/data/data.service';
 import { KeycloakService } from './services/keycloak/keycloak.service';
+import { KeycloakInterceptorService } from './services/keycloak/keycloak.interceptor.service';
 
 
 @NgModule({
@@ -19,6 +20,11 @@ import { KeycloakService } from './services/keycloak/keycloak.service';
   ],
   providers: [
     DataService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: KeycloakInterceptorService,
+      multi: true
+    },
     KeycloakService
   ],
   bootstrap: [AppComponent]

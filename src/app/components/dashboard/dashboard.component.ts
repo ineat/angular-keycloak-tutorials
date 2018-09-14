@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../../services/data/data.service';
-import { Observable } from 'rxjs/Observable';
 import { KeycloakService } from '../../services/keycloak/keycloak.service';
+import { KeycloakInstance } from 'keycloak-js';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,12 +25,15 @@ export class DashboardComponent implements OnInit {
   public userErrorResponse: any;
   public adminErrorResponse: any;
 
+  public keycloakAuth: KeycloakInstance;
+
   constructor(
     private data: DataService,
     private keycloak: KeycloakService
   ) { }
 
   ngOnInit() {
+    this.keycloakAuth = this.keycloak.getKeycloakAuth();
   }
 
   getUnsecuredData() {
@@ -61,7 +64,7 @@ export class DashboardComponent implements OnInit {
         this.userError = true;
         this.userErrorResponse = {
           status: error.status,
-          message: error.message
+          message: error.message && this.isJsonString(error.error) ? JSON.parse(error.error).message : error.message
         };
       }
     );
@@ -74,22 +77,38 @@ export class DashboardComponent implements OnInit {
         this.adminData = data;
       },
       error => {
+        console.log(error.error);
         this.adminLoaded = true;
         this.adminError = true;
         this.adminErrorResponse = {
           status: error.status,
-          message: error.message
+          message: error.message && this.isJsonString(error.error) ? JSON.parse(error.error).message : error.message
         };
       }
     );
   }
 
   login() {
-    KeycloakService.login();
+    this.keycloak.login();
   }
 
   logout() {
     this.keycloak.logout();
+  }
+
+  displayUserInfo() {
+    return this.keycloak.getFullName();
+  }
+
+  private isJsonString = (str) => {
+    console.log(JSON.parse(str));
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      console.log('test');
+      return false;
+    }
+    return true;
   }
 
 }

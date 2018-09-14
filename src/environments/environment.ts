@@ -5,9 +5,9 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://10.2.19.58:8080',
+  apiUrl: 'http://localhost:8180',
   keycloak: {
-    url: 'http://10.2.19.58:8180/auth',
+    url: 'http://localhost:8080/auth',
     realm: 'ineat-realm',
     clientId: 'ineat-web',
   }

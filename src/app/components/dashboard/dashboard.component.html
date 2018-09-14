@@ -4,13 +4,14 @@
       <nav class="navbar fixed-top navbar-dark bg-primary">
         <a class="navbar-brand" href="#">
           <img src="https://ineat-group.com/assets/images/poulpies/ineat-logo-full.svg" height="30" class="d-inline-block align-top" alt="">
+          <span  *ngIf="keycloakAuth.authenticated">Bonjour {{ displayUserInfo() }}</span>
         </a>
         <button class="btn btn-outline-warning my-2 my-sm-0" (click)="logout()">Logout</button>
         <button class="btn btn-outline-warning my-2 my-sm-0" (click)="login()">Login</button>
       </nav>
       <div class="jumbotron">
         <h1 class="display-4">Hello, world!</h1>
-        <p class="lead">Securisez vos APIs Spring avec Keycloak : #4 – Utilisation du connecteur Keycloak.js avec Angular 4/5.</p>
+        <p class="lead">Securisez vos APIs Spring avec Keycloak : #4 – Utilisation du connecteur Keycloak.js avec Angular 4+.</p>
         <hr class="my-4">
         <p>Récupération de la donnée du endpoint non sécurisé</p>
         <div class="lead">
@@ -26,7 +27,7 @@
         <hr class="my-4">
         <p>Récupération de la donnée du endpoint user sécurisé</p>
         <div class="lead">
-          <a class="btn btn-primary btn-lg" (click)="getUserData()" role="button">Data non sécurisé</a>
+          <a class="btn btn-primary btn-lg" (click)="getUserData()" role="button">Data User</a>
           <div class="card" *ngIf="userLoaded">
             <div class="card-body">
               <h5 class="card-title">Response</h5>
@@ -38,12 +39,12 @@
         <hr class="my-4">
         <p>Récupération de la donnée du endpoint admin sécurisé</p>
         <div class="lead">
-          <a class="btn btn-primary btn-lg" (click)="getAdminData()" role="button">Data non sécurisé</a>
+          <a class="btn btn-primary btn-lg" (click)="getAdminData()" role="button">Data Admin</a>
           <div class="card" *ngIf="adminLoaded">
             <div class="card-body">
               <h5 class="card-title">Response</h5>
-              <p class="card-text" *ngIf="!userError">{{ adminData }}</p>
-              <p class="card-text" *ngIf="userError">Code retour: {{ adminErrorResponse.status }} - message: {{ adminErrorResponse.message }}</p>
+              <p class="card-text" *ngIf="!adminError">{{ adminData }}</p>
+              <p class="card-text" *ngIf="adminError">Code retour: {{ adminErrorResponse.status }} - message: {{ adminErrorResponse.message }}</p>
             </div>
           </div>
         </div>
